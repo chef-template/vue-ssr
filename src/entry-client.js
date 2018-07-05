@@ -27,19 +27,18 @@ if (window.__INITIAL_STATE__) {
 
 router.onReady(() => {
     router.beforeResolve((to, from, next) => {
-        let matched, prevMatched, diffed, activated, hooks
+        let matched, prevMatched, diffed, activated, hooks, meta
 
         diffed = false
+        meta = Object.assign({}, to.meta || {})
         matched = router.getMatchedComponents(to)
         prevMatched = router.getMatchedComponents(from)
         activated = matched.filter((item, index) => diffed || (diffed = (prevMatched[index] !== item)))
         hooks = activated.map((item) => item.asyncData).filter((item) => item)
         
         if (!hooks.length) {
-            return next()
+            return refreshMeta(meta, next)
         }
-
-        let meta = Object.assign({}, to.meta || {})
 
         Promise.all(hooks.map((hook) => hook({
             http,
