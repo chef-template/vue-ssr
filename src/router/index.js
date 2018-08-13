@@ -27,5 +27,13 @@ export function createRouter() {
         }
     })
 
+    router.onError((err) => {
+        if (err.message === 'Permission denied') {
+            let redirectUrl = (router.options.routes.filter((route) => route.meta.redirect)[0] || { path: '' }).path
+            
+            router.push(`${router.options.base}${redirectUrl}`.replace(/\/\//ig, '/'))
+        }
+    })
+
     return router
 }

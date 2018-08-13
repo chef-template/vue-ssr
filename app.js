@@ -23,8 +23,8 @@ app.use(function* (next) {
     try {
         this.body = yield getContent(this.url, this.cookies)
     } catch(err) {
-        if (err.code === 403 && err.redirect) {
-            this.redirect(err.redirect)
+        if (err.code === 403 && err.redirectUrl) {
+            this.redirect(err.redirectUrl)
         } else {
             console.log(err)
         }

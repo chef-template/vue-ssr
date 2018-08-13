@@ -9,7 +9,7 @@ Vue.mixin({
         let meta = Object.assign({}, to.meta || {})
 
         if (meta.auth && !cookies.get(meta.auth)) {
-            return meta.redirect ? next(meta.redirect) : next(false)
+            return next(new Error('Permission denied'))
         }
         
         if (this.$options.asyncData) {
@@ -42,7 +42,7 @@ router.onReady(() => {
         hooks = activated.map((item) => item.asyncData).filter((item) => item)
 
         if (meta.auth && !cookies.get(meta.auth)) {
-            return meta.redirect ? next(meta.redirect) : next(false)
+            return next(new Error('Permission denied'))
         }
         
         if (!hooks.length) {
