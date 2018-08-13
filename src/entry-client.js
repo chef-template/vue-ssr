@@ -9,7 +9,13 @@ Vue.mixin({
         let meta = Object.assign({}, to.meta || {})
 
         if (meta.auth && !cookies.get(meta.auth)) {
-            return next(new Error('Permission denied'))
+            let redirectUrl = (router.options.routes.filter((route) => route.meta.redirect)[0] || { path: '' }).path
+
+            return next(new Error(JSON.stringify({
+                code: 403,
+                message: 'Permission denied',
+                redirectUrl: `${router.options.base}${redirectUrl}?redirect=${router.options.base}${to.fullPath}`.replace(/\/\//ig, '/')
+            })))
         }
         
         if (this.$options.asyncData) {
@@ -42,7 +48,13 @@ router.onReady(() => {
         hooks = activated.map((item) => item.asyncData).filter((item) => item)
 
         if (meta.auth && !cookies.get(meta.auth)) {
-            return next(new Error('Permission denied'))
+            let redirectUrl = (router.options.routes.filter((route) => route.meta.redirect)[0] || { path: '' }).path
+            
+            return next(new Error(JSON.stringify({
+                code: 403,
+                message: 'Permission denied',
+                redirectUrl: `${router.options.base}${redirectUrl}?redirect=${router.options.base}${to.fullPath}`.replace(/\/\//ig, '/')
+            })))
         }
         
         if (!hooks.length) {

@@ -16,12 +16,13 @@ export default function(context) {
             let meta = Object.assign({}, router.currentRoute.meta || {})
 
             if (meta.auth && !context.cookies.get(meta.auth)) {
+                let redirect = encodeURIComponent(router.options.base + context.url).replace(/%2F%2F/ig, '%2F')
                 let redirectUrl = (router.options.routes.filter((route) => route.meta.redirect)[0] || { path: '' }).path
                 
                 return reject({
                     code: 403,
                     message: 'Permission denied',
-                    redirectUrl: `${router.options.base}${redirectUrl}`.replace(/\/\//ig, '/')
+                    redirectUrl: `${router.options.base}${redirectUrl}?redirect=${redirect}`.replace(/\/\//ig, '/')
                 })
             }
             
