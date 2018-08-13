@@ -17,8 +17,8 @@ if (process.env.VUE_ENV === 'client') {
 export function createRouter() {
     let router = new Router({
         mode: 'history',
-        base: '/app/',
         fallback: false,
+        base: process.env.ROUTER_ROOT,
         routes: Object.keys(routes).reduce((previous, current) => {
             return (previous.push({path: current, ...routes[current]}), previous)
         }, []).concat(notFound),

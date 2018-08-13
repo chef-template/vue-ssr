@@ -1,5 +1,6 @@
 let path = require('path')
 let webpack = require('webpack')
+let env = require('./webpack.env')
 let merge = require('webpack-merge')
 let webpackBaseConfig = require('./webpack.base.conf')
 let CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -11,12 +12,12 @@ module.exports = merge(webpackBaseConfig, {
         main: [path.resolve(process.cwd(), 'src/entry-client.js')]
     },
     output: {
-        publicPath: '/',
         filename: 'js/[name].[hash].js',
-        path: path.resolve(process.cwd(), 'dist')
+        path: path.resolve(process.cwd(), 'dist'),
+        publicPath: getEnv()['process.env'].publicPath
     },
     plugins: [
-        new webpack.DefinePlugin(getDefinePluginConfig()),
+        new webpack.DefinePlugin(getEnv()),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
@@ -37,16 +38,15 @@ module.exports = merge(webpackBaseConfig, {
             { from: 'app.js', to: './' },
             { from: 'index.html', to: './' }
         ])
-    ]
+    ],
+    devServer: env.develop.devServer
 })
 
-function getDefinePluginConfig() {
-    let config = {
-        'process.env': {
+function getEnv() {
+    return {
+        'process.env': Object.assign({
             VUE_ENV: '"client"',
             NODE_ENV: `"${process.env.NODE_ENV}"`
-        }
+        }, env[process.env.NODE_ENV])
     }
-
-    return config
 }

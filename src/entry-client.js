@@ -1,11 +1,16 @@
 import Vue from 'vue'
 import { createApp } from './entry'
+import cookies from 'utils/cookies'
 
-const { app, router, store, http } = createApp()
+const { app, router, store, http } = createApp(cookies)
 
 Vue.mixin({
     beforeRouteUpdate(to, from, next) {
         let meta = Object.assign({}, to.meta || {})
+
+        if (meta.auth && !cookies.get(meta.auth)) {
+            return meta.redirect ? next(meta.redirect) : next(false)
+        }
         
         if (this.$options.asyncData) {
             this.$options.asyncData({
@@ -35,11 +40,15 @@ router.onReady(() => {
         prevMatched = router.getMatchedComponents(from)
         activated = matched.filter((item, index) => diffed || (diffed = (prevMatched[index] !== item)))
         hooks = activated.map((item) => item.asyncData).filter((item) => item)
+
+        if (meta.auth && !cookies.get(meta.auth)) {
+            return meta.redirect ? next(meta.redirect) : next(false)
+        }
         
         if (!hooks.length) {
             return refreshMeta(meta, next)
         }
-
+        
         Promise.all(hooks.map((hook) => hook({
             http,
             meta,

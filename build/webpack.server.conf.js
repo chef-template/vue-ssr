@@ -1,5 +1,6 @@
 var path = require('path')
 var webpack = require('webpack')
+let env = require('./webpack.env')
 var merge = require('webpack-merge')
 var nodeExternals = require('webpack-node-externals')
 var webpackBaseConfig = require('./webpack.base.conf')
@@ -18,7 +19,7 @@ module.exports = merge(webpackBaseConfig, {
         whitelist: /\.css$/
     }),
     plugins: [
-        new webpack.DefinePlugin(getDefinePluginConfig()),
+        new webpack.DefinePlugin(getEnv()),
         new webpack.optimize.UglifyJsPlugin({
             compress: {
                 warnings: false
@@ -29,13 +30,11 @@ module.exports = merge(webpackBaseConfig, {
     ]
 })
 
-function getDefinePluginConfig() {
-    let config = {
-        'process.env': {
+function getEnv() {
+    return {
+        'process.env': Object.assign({
             VUE_ENV: '"server"',
             NODE_ENV: `"${process.env.NODE_ENV}"`
-        }
+        }, env[process.env.NODE_ENV])
     }
-
-    return config
 }

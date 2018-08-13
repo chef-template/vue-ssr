@@ -20,7 +20,15 @@ let renderer = createBundleRenderer(serverBundle, {
 
 app.use(serve(__dirname))
 app.use(function* (next) {
-    this.body = yield getContent(this.url, this.cookies)
+    try {
+        this.body = yield getContent(this.url, this.cookies)
+    } catch(err) {
+        if (err.code === 403 && err.redirect) {
+            this.redirect(err.redirect)
+        } else {
+            console.log(err)
+        }
+    }
 })
 app.listen(PORT, (err) => {
     if (err) { return console.log(err) }

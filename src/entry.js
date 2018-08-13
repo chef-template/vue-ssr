@@ -1,9 +1,9 @@
 import Vue from 'vue'
 import App from './App'
 import http from 'vue-http'
+import { createStore }from './store'
 import Layout from 'components/layout'
 import { sync } from 'vuex-router-sync'
-import { createStore }from './store'
 import { createRouter } from './router'
 
 Vue.use(http)
@@ -11,7 +11,7 @@ Vue.component('Layout', Layout)
 
 Vue.config.productionTip = false
 
-export function createApp() {
+export function createApp(cookies) {
     let store, router
 
     store = createStore()

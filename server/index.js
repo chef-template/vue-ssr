@@ -83,7 +83,15 @@ app.use(function *(next) {
 app.use(devMiddleware)
 app.use(hotMiddleware)
 app.use(function* (next) {
-    this.body = yield getContent(this.url, this.cookies)
+    try {
+        this.body = yield getContent(this.url, this.cookies)
+    } catch(err) {
+        if (err.code === 403 && err.redirect) {
+            this.redirect(err.redirect)
+        } else {
+            console.log(err)
+        }
+    }
 })
 app.listen(port, (err) => {
     if (err) {
