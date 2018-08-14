@@ -18,12 +18,11 @@ export default function(context) {
             if (meta.auth && !context.cookies.get(meta.auth)) {
                 let redirect = encodeURIComponent(router.options.base + context.url).replace(/%2F%2F/ig, '%2F')
                 let redirectUrl = (router.options.routes.filter((route) => route.meta.redirect)[0] || { path: '' }).path
-                
-                return reject({
-                    code: 403,
+
+                return reject(new PermissionError({
                     message: 'Permission denied',
                     redirectUrl: `${router.options.base}${redirectUrl}?redirect=${redirect}`.replace(/\/\//ig, '/')
-                })
+                }))
             }
             
             Promise.all(matchedComponents.map((Component) => {
@@ -49,4 +48,18 @@ export default function(context) {
             }).catch(reject)
         }, reject)
     })
+}
+
+class PermissionError extends Error {
+    constructor(opts) {
+        super()
+        
+        this.code = 403
+        this.message = opts.message
+        this.redirectUrl = opts.redirectUrl
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, this.constructor)
+        }
+    }
 }

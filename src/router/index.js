@@ -28,13 +28,9 @@ export function createRouter() {
     })
 
     router.onError((err) => {
-        try {
-            err = JSON.parse(err.message)
-
-            if (err.code === 403 && err.redirectUrl) {
-                router.push(err.redirectUrl)
-            }
-        } catch(e) {
+        if (err.code === 403) {
+            router.push(err.redirectUrl)
+        } else {
             console.log(err)
         }
     })

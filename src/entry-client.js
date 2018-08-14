@@ -11,11 +11,10 @@ Vue.mixin({
         if (meta.auth && !cookies.get(meta.auth)) {
             let redirectUrl = (router.options.routes.filter((route) => route.meta.redirect)[0] || { path: '' }).path
 
-            return next(new Error(JSON.stringify({
-                code: 403,
+            return next(new PermissionError({
                 message: 'Permission denied',
                 redirectUrl: `${router.options.base}${redirectUrl}?redirect=${router.options.base}${to.fullPath}`.replace(/\/\//ig, '/')
-            })))
+            }))
         }
         
         if (this.$options.asyncData) {
@@ -49,12 +48,11 @@ router.onReady(() => {
 
         if (meta.auth && !cookies.get(meta.auth)) {
             let redirectUrl = (router.options.routes.filter((route) => route.meta.redirect)[0] || { path: '' }).path
-            
-            return next(new Error(JSON.stringify({
-                code: 403,
+
+            return next(new PermissionError({
                 message: 'Permission denied',
                 redirectUrl: `${router.options.base}${redirectUrl}?redirect=${router.options.base}${to.fullPath}`.replace(/\/\//ig, '/')
-            })))
+            }))
         }
         
         if (!hooks.length) {
@@ -81,4 +79,18 @@ function refreshMeta(meta, next) {
     document.querySelector('meta[name="description"]').content = description || ''
 
     next()
+}
+
+class PermissionError extends Error {
+    constructor(opts) {
+        super()
+        
+        this.code = 403
+        this.message = opts.message
+        this.redirectUrl = opts.redirectUrl
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, this.constructor)
+        }
+    }
 }
